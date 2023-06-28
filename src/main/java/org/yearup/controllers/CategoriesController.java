@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.yearup.data.CategoryDao;
 import org.yearup.data.ProductDao;
 import org.yearup.models.Category;
@@ -32,7 +33,7 @@ public class CategoriesController
         this.productDao = productDao;
     }
 
-@GetMapping()
+@GetMapping
     public List<Category> getAll(@RequestParam(name = "categoryId", required = false) Integer categoryId,
                                  @RequestParam(name = "name", required = false) String name,
                                  @RequestParam(name = "description", required = false) String  description)
@@ -44,7 +45,7 @@ public class CategoriesController
     }
 
     // add the appropriate annotation for a get action
-    @GetMapping("/{id}")
+    @GetMapping("/{categoryId}")
     public Category getById(@PathVariable int categoryId)
     {
         // get the category by id
@@ -80,14 +81,25 @@ public class CategoriesController
         // update the category by id
     }
 
-@DeleteMapping
+@DeleteMapping("{id}")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 @ResponseStatus(value = HttpStatus.NO_CONTENT)
     // add annotation to call this method for a DELETE action - the url path must include the categoryId
     // add annotation to ensure that only an ADMIN can call this function
     public void deleteCategory(@PathVariable int id)
+{
+    try
     {
-     deleteCategory(id);
-        // delete the category by id
+        var category = categoryDao.getById(id);
+
+        if(category == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        categoryDao.delete(id);
     }
+    catch(Exception ex)
+    {
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+    }
+}
 }

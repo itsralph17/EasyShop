@@ -53,18 +53,22 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
     }
 
     @Override
-    public Category getById(int categoryId)
+    public Category getById(int id)
     {
         String sql = "SELECT * FROM categories WHERE category_id = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setInt(1, categoryId);
+            statement.setInt(1, id);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return mapRow(resultSet);
+                    int categoryId = resultSet.getInt("category_id");
+                    String name = resultSet.getString("name");
+                    String description = resultSet.getString("description");
+                    Category category = new Category(categoryId, name, description);
+                    return category;
                 }
             }
         } catch (SQLException e) {
@@ -80,7 +84,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
         String sql = "INSERT INTO categories (category_id, name, description) VALUES (?, ?, ?)";
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt(1, category.getCategoryId());
             statement.setString(2, category.getName());
@@ -88,12 +92,19 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
 
             statement.executeUpdate();
 
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    int generatedId = generatedKeys.getInt(1);
+                    category.setCategoryId(generatedId);
+                }
+            }
+
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return null;
+        return category;
     }
 
     @Override
