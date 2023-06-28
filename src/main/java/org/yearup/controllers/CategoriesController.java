@@ -32,7 +32,7 @@ public class CategoriesController
         this.productDao = productDao;
     }
 
-@GetMapping
+@GetMapping()
     public List<Category> getAll(@RequestParam(name = "categoryId", required = false) Integer categoryId,
                                  @RequestParam(name = "name", required = false) String name,
                                  @RequestParam(name = "description", required = false) String  description)
