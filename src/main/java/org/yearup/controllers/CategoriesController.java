@@ -36,6 +36,7 @@ public class CategoriesController
         this.dataSource = dataSource;
     }
 
+
     // add the appropriate annotation for a get action
 
 @GetMapping
@@ -48,6 +49,7 @@ public class CategoriesController
 
 
     }
+
 
     // add the appropriate annotation for a get action
     @GetMapping("/{categoryId}")
@@ -70,6 +72,7 @@ public class CategoriesController
         }
     }
 
+
     // the url to return all products in category 1 would look like this
     // https://localhost:8080/categories/1/products
     @GetMapping("{categoryId}/products")
@@ -78,6 +81,7 @@ public class CategoriesController
         // get a list of product by categoryId
         return (List<Product>) categoryDao.getById(categoryId);
     }
+
 
     // add annotation to call this method for a POST action
     // add annotation to ensure that only an ADMIN can call this function
@@ -89,6 +93,7 @@ public class CategoriesController
         // insert the category
         return categoryDao.create(category);
     }
+
 @PutMapping
 @PreAuthorize("hasRole('ROLE_ADMIN')")
     // add annotation to call this method for a PUT (update) action - the url path must include the categoryId
@@ -98,6 +103,7 @@ public class CategoriesController
         categoryDao.update(id, category);
         // update the category by id
     }
+
 
 @DeleteMapping("{id}")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
